@@ -1,0 +1,15 @@
+Doel
+	Opnieuw naar kijken en uitschrijven.
+	Wat is het doel en waarom?
+Methode
+	Lopend verhaal van maken
+	Misschien wat veel methoden
+Keuze
+	Eerst argumenten geven, dan pas de keuze (J: Niet helemaal mee eens)
+Evaluatie
+	Meer over wat en hoe
+	Meer over het testen
+
+2 of meer Testrapporten
+	Een raport over snelheid
+	Een raport over correctheid
