@@ -1,0 +1,38 @@
+#include "StudentPreProcessing.h"
+#include "ImageIO.h"
+#include <iostream>
+#include "ImageFactory.h"
+#include <stdint.h>
+
+
+IntensityImage * StudentPreProcessing::stepToIntensityImage(const RGBImage &image) const {
+	return nullptr;
+}
+
+IntensityImage * StudentPreProcessing::stepScaleImage(const IntensityImage &image) const {
+	return nullptr;
+}
+
+IntensityImage * StudentPreProcessing::stepEdgeDetection(const IntensityImage &image) const {
+	IntensityImage * picture = ImageFactory::newIntensityImage(image);
+	for (int x = 1; x < image.getWidth()-1; x++) {
+		for (int y = 0; y < image.getHeight(); y++) {
+			int pixel_first = image.getPixel(x - 1, y);
+			int pixel_second = image.getPixel(x + 1, y);
+			int pixel_base = image.getPixel(x, y);
+			int new_pixel = pixel_first + pixel_second - 2 * pixel_base;
+			//if (new_pixel < 0) {
+			//	new_pixel = 127;
+			//}
+			//else if (new_pixel > 255) {
+			//	new_pixel = 255;
+			//}
+			picture->setPixel(x, y, (unsigned char)new_pixel);
+		}
+	}
+	return picture;
+}
+
+IntensityImage * StudentPreProcessing::stepThresholding(const IntensityImage &image) const {
+	return nullptr;
+}

@@ -9,6 +9,7 @@
 #include "HereBeDragons.h"
 #include "ImageFactory.h"
 #include "DLLExecution.h"
+#include <chrono>
 
 void drawFeatureDebugImage(IntensityImage &image, FeatureMap &features);
 bool executeSteps(DLLExecution * executor);
@@ -16,17 +17,18 @@ bool executeSteps(DLLExecution * executor);
 int main(int argc, char * argv[]) {
 
 	ImageFactory::setImplementation(ImageFactory::DEFAULT);
+	
 	//ImageFactory::setImplementation(ImageFactory::STUDENT);
 
 
-	ImageIO::debugFolder = "D:\\Users\\Rolf\\Downloads\\FaceMinMin";
+	ImageIO::debugFolder = "C:\\Users\\stefan-1212\\Desktop\\test_pictures\\edge_detected";
 	ImageIO::isInDebugMode = true; //If set to false the ImageIO class will skip any image save function calls
 
 
 
-
 	RGBImage * input = ImageFactory::newRGBImage();
-	if (!ImageIO::loadImage("D:\\Users\\Rolf\\Downloads\\TestA5.jpg", *input)) {
+	if (!ImageIO::loadImage("C:\\Users\\stefan-1212\\Desktop\\test_pictures\\test.png", *input)) {
+		//std::cout << "hi" << std::endl;
 		std::cout << "Image could not be loaded!" << std::endl;
 		system("pause");
 		return 0;
@@ -67,24 +69,38 @@ bool executeSteps(DLLExecution * executor) {
 		std::cout << "Pre-processing step 1 failed!" << std::endl;
 		return false;
 	}
-
+	
 	if (!executor->executePreProcessingStep2(false)) {
 		std::cout << "Pre-processing step 2 failed!" << std::endl;
 		return false;
 	}
+	
+
+
+
 	ImageIO::saveIntensityImage(*executor->resultPreProcessingStep2, ImageIO::getDebugFileName("Pre-processing-2.png"));
 
-	if (!executor->executePreProcessingStep3(false)) {
+	auto start = std::chrono::high_resolution_clock::now();
+
+	if (!executor->executePreProcessingStep3(true)) {
 		std::cout << "Pre-processing step 3 failed!" << std::endl;
 		return false;
 	}
-	ImageIO::saveIntensityImage(*executor->resultPreProcessingStep3, ImageIO::getDebugFileName("Pre-processing-3.png"));
+	
+	//ImageIO::saveIntensityImage(*executor->resultPreProcessingStep3, ImageIO::getDebugFileName("Pre-processing-3.png"));
+
+	
+	auto stop = std::chrono::high_resolution_clock::now();
+	int duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count();
+	exit(duration);
+	ImageIO::saveIntensityImage(*executor->resultPreProcessingStep4, ImageIO::getDebugFileName("Pre-processing-4.png"));
+
 
 	if (!executor->executePreProcessingStep4(false)) {
 		std::cout << "Pre-processing step 4 failed!" << std::endl;
 		return false;
 	}
-	ImageIO::saveIntensityImage(*executor->resultPreProcessingStep4, ImageIO::getDebugFileName("Pre-processing-4.png"));
+
 
 
 
