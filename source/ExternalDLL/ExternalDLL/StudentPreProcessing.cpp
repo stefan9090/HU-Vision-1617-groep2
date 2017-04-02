@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <math.h>
 
+int BGD_kernel[1][3] = { {-1, 0, 1} };
+
 int laplacian_kernel[3][3] = {
 	{ 0, 1, 0 },
 	{ 1, -4, 1 },
@@ -27,16 +29,33 @@ int school_kernel[9][9] = {
 	{0, 0, 0,  1,  1,  1, 0, 0, 0}
 };
 
+int copy_kernel[3][3] = {
+	{ 0, 0, 0 },
+	{ 0, 1, 0 },
+	{ 0, 0, 0 } };
+
 template<int sizeX, int sizeY>
 IntensityImage * edge_detection(const IntensityImage &image, int kernel[sizeX][sizeY]) {
-	IntensityImage * end_picture = ImageFactory::newIntensityImage(image.getWidth(), image.getHeight());
+	IntensityImage * end_picture { ImageFactory::newIntensityImage(image.getWidth(), image.getHeight()) };
+	int offset = sizeX / 2;
+
 	int sum = 0;
-	for (int x = 4; x < end_picture->getWidth()-4; x++) {
-		for (int y = 4; y < end_picture->getHeight()-4; y++) {
+	for (int x = 0; x < end_picture->getWidth(); x++) {
+		for (int y = 0; y < end_picture->getHeight(); y++) {
 			sum = 0;
-			for (int kernelX = -1; kernelX <= sizeX - 1; kernelX++) {
-				for (int kernelY = -1; kernelY <= sizeY - 1; kernelY++) {
-					sum += kernel[kernelY + 1][kernelX + 1] * image.getPixel(x - kernelX, y - kernelY);
+			for (int kernelX = -offset; kernelX < sizeX - offset; kernelX++) {
+				for (int kernelY = -offset; kernelY < sizeY - offset; kernelY++) {
+
+					int pictureX = x - kernelX;
+					int pictureY = y - kernelY;
+
+					if (pictureX > image.getWidth() - 1 || pictureX < 0 || 
+						pictureY > image.getHeight() - 1 || pictureY < 0) {
+						sum += 0;
+					}
+					else {
+						sum += kernel[kernelY + offset][kernelX + offset] * image.getPixel(x - kernelX, y - kernelY);
+					}	
 				}
 			}
 			if (sum < 0) {
@@ -45,12 +64,75 @@ IntensityImage * edge_detection(const IntensityImage &image, int kernel[sizeX][s
 			else if (sum > 255) {
 				sum = 255;
 			}
-			end_picture->setPixel(x-4, y-4, sum);
+			end_picture->setPixel(x, y, sum);
 		}		
 	}
 	return end_picture;
 }
 
+template<int sizeX, int sizeY>
+IntensityImage * edge_detection_1d(const IntensityImage &image, int kernel[sizeX][sizeY]) {
+	IntensityImage * end_picture{ ImageFactory::newIntensityImage(image.getWidth(), image.getHeight()) };
+	int offset = sizeX / 2;
+	int horizontal = 0;
+	int vertical = 0;
+	for (int x = 0; x < end_picture->getWidth(); x++) {
+		for (int y = 0; y < end_picture->getHeight(); y++) {
+			horizontal = 0;
+			vertical = 0;
+			for (int kernelX = -offset; kernelX < sizeX - offset; kernelX++) {
+				for (int kernelY = -offset; kernelY < sizeY - offset; kernelY++) {
+
+					int pictureX = x - kernelX;
+					int pictureY = y - kernelY;
+
+					if (pictureX > image.getWidth() - 1 || pictureX < 0 ||
+						pictureY > image.getHeight() - 1 || pictureY < 0) {
+						//sum += 0;
+					}
+					else {
+						horizontal += kernel[kernelY + offset][kernelX + offset] * image.getPixel(x - kernelY, y - kernelX);
+						vertical += kernel[kernelY + offset][kernelX + offset] * image.getPixel(x - kernelX, y - kernelY);
+					}
+				}
+			}
+
+			int end_pixel = std::sqrt(std::pow(horizontal, 2) + std::pow(vertical, 2));
+
+			if (end_pixel < 0) {
+				end_pixel = 0;
+			}
+			else if (end_pixel > 255) {
+				end_pixel = 255;
+			}
+			
+			end_picture->setPixel(x, y, end_pixel);
+		}
+	}
+	return end_picture;
+}
+
+template<int sizeX>
+IntensityImage * edge_detection(const IntensityImage &image, int kernel[sizeX]) {
+	IntensityImage * end_picture = ImageFactory::newIntensityImage(image.getWidth(), image.getHeight());
+	int sum = 0;
+	for (int x = 4; x < end_picture->getWidth() - 4; x++) {
+		for (int y = 4; y < end_picture->getHeight() - 4; y++) {
+			sum = 0;
+			for (int kernelX = -1; kernelX <= sizeX - 1; kernelX++) {
+				sum += kernel[kernelX + 1] * image.getPixel(x - kernelX, y);
+			}
+			if (sum < 0) {
+				sum = 0;
+			}
+			else if (sum > 255) {
+				sum = 255;
+			}
+			end_picture->setPixel(x - 4, y, sum);
+		}
+	}
+	return end_picture
+}
 IntensityImage * mix_picture(const IntensityImage *image1, const IntensityImage *image2) {
 	if (!(image1->getHeight() == image2->getHeight()) && (image1->getWidth() == image2->getWidth())) {
 		return nullptr;
@@ -223,7 +305,6 @@ IntensityImage * BGD(const IntensityImage &image) {
 	return end_picture;
 }
 
-int BGD_kernel[3] = {-1, 0, 1};
 
 					  
 
@@ -233,7 +314,7 @@ IntensityImage * StudentPreProcessing::stepEdgeDetection(const IntensityImage &i
 	//return BGD(image);
 	//return edge_detection_1d(image, BGD_kernel);
 	//return edge_detection_2d2(image, prewitt_kernel);
-	return edge_detection<9, 9>(image, school_kernel);
+	return edge_detection_1d<3, 3>(image, prewitt_kernel);
 }
 
 IntensityImage * StudentPreProcessing::stepThresholding(const IntensityImage &image) const {
@@ -246,7 +327,7 @@ IntensityImage * StudentPreProcessing::stepThresholding(const IntensityImage &im
 		}
 	}
 	unsigned char average_pixel_int = total_pixel_int / (image.getHeight()*image.getWidth());
-	average_pixel_int += 30;
+	//average_pixel_int = 220;
 	for (int x = 1; x < image.getWidth() - 1; x++) {
 		for (int y = 1; y < image.getHeight()-1; y++) {
 			unsigned char pixel = image.getPixel(x, y);
