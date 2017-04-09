@@ -6,7 +6,7 @@
 #include <math.h>
 
 
-int BGD_kernel[3] = { -1, 0, 1 };
+int BGD_kernel[1][3] = { { -1, 0, 1 } };
 
 int laplacian_kernel[3][3] = {
 	{ 0, 1, 0 },
@@ -292,11 +292,11 @@ IntensityImage * StudentPreProcessing::stepEdgeDetection(const IntensityImage &i
 	
 	//return BGD(image);
 	//return edge_detection_1d(image, BGD_kernel);
-	//return edge_detection<1, 3>(image, BGD_kernel);
+	//return edge_detection_1d<1, 3>(image, BGD_kernel);
 	//return edge_detection_2d2(image, prewitt_kernel);
 	//return edge_detection<3, 3>(image, sobel_kernel);
-	return edge_detection<9, 9>(image, school_kernel);
-	//return edge_detection<3, 3>(image, laplacian_kernel);
+	//return edge_detection<9, 9>(image, school_kernel);
+	return edge_detection<3, 3>(image, laplacian_kernel);
 }
 
 IntensityImage * StudentPreProcessing::stepThresholding(const IntensityImage &image) const {
