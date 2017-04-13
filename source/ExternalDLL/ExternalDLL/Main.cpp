@@ -17,18 +17,18 @@ bool executeSteps(DLLExecution * executor);
 int main(int argc, char * argv[]) {
 
 	ImageFactory::setImplementation(ImageFactory::DEFAULT);
+
+	char debugFolderDir[] = "C:\\Users\\stefan-1212\\Desktop\\test_pictures\\edge_detected";
+	char pictureDir[] = "C:\\Users\\stefan-1212\\Desktop\\test_pictures\\test.png";
 	
 	//ImageFactory::setImplementation(ImageFactory::STUDENT);
 
-
-	ImageIO::debugFolder = "C:\\Users\\stefan-1212\\Desktop\\test_pictures\\edge_detected";
+	ImageIO::debugFolder = debugFolderDir;
 	ImageIO::isInDebugMode = true; //If set to false the ImageIO class will skip any image save function calls
 
-
-
 	RGBImage * input = ImageFactory::newRGBImage();
-//	if (!ImageIO::loadImage("C:\\Users\\stefan-1212\\Desktop\\test_pictures\\test.png", *input)) {
-    if (!ImageIO::loadImage("E:\\Users\\Jeroen\\Documents\\Gitkraken\\HU-Vision-1617-groep2\\testsets\\Set A\\TestSet Images\\child-1.png", *input)) {
+	if (!ImageIO::loadImage(pictureDir, *input)) {
+    //if (!ImageIO::loadImage("E:\\Users\\Jeroen\\Documents\\Gitkraken\\HU-Vision-1617-groep2\\testsets\\Set A\\TestSet Images\\child-1.png", *input)) {
 
 		//std::cout << "hi" << std::endl;
 		std::cout << "Image could not be loaded!" << std::endl;
@@ -89,7 +89,7 @@ bool executeSteps(DLLExecution * executor) {
 		return false;
 	}
 	
-	//ImageIO::saveIntensityImage(*executor->resultPreProcessingStep3, ImageIO::getDebugFileName("Pre-processing-3.png"));
+	ImageIO::saveIntensityImage(*executor->resultPreProcessingStep3, ImageIO::getDebugFileName("Pre-processing-3.png"));
 
 	
 	auto stop = std::chrono::high_resolution_clock::now();
